@@ -57,32 +57,25 @@ public class ApiDialog extends BaseDialog {
         inputApi = findViewById(R.id.input);
         //内置网络接口在此处添加
         inputApi.setText(Hawk.get(HawkConfig.API_URL, ""));
-        findViewById(R.id.inputSubmit).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newApi = inputApi.getText().toString().trim();
-                if (!newApi.isEmpty()) {
-                    ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
-                    if (!history.contains(newApi))
-                        history.add(0, newApi);
-                    if (history.size() > 30)
-                        history.remove(30);
-                    Hawk.put(HawkConfig.API_HISTORY, history);
-                    listener.onchange(newApi);
-                    dismiss();
-                }
+        findViewById(R.id.inputSubmit).setOnClickListener(v -> {
+            String newApi = inputApi.getText().toString().trim();
+            if (!newApi.isEmpty()) {
+                ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
+                if (!history.contains(newApi)) history.add(0, newApi);
+                if (history.size() > 30) history.remove(30);
+                Hawk.put(HawkConfig.API_HISTORY, history);
+                listener.onchange(newApi);
+                dismiss();
             }
         });
         findViewById(R.id.apiHistory).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ArrayList<String> history = Hawk.get(HawkConfig.API_HISTORY, new ArrayList<String>());
-                if (history.isEmpty())
-                    return;
+                if (history.isEmpty()) return;
                 String current = Hawk.get(HawkConfig.API_URL, "");
                 int idx = 0;
-                if (history.contains(current))
-                    idx = history.indexOf(current);
+                if (history.contains(current)) idx = history.indexOf(current);
                 ApiHistoryDialog dialog = new ApiHistoryDialog(getContext());
                 dialog.setTip("历史配置列表");
                 dialog.setAdapter(new ApiHistoryDialogAdapter.SelectDialogInterface() {
@@ -107,26 +100,24 @@ public class ApiDialog extends BaseDialog {
                 if (XXPermissions.isGranted(getContext(), Permission.Group.STORAGE)) {
                     Toast.makeText(getContext(), "已获得存储权限", Toast.LENGTH_SHORT).show();
                 } else {
-                    XXPermissions.with(getContext())
-                            .permission(Permission.Group.STORAGE)
-                            .request(new OnPermissionCallback() {
-                                @Override
-                                public void onGranted(List<String> permissions, boolean all) {
-                                    if (all) {
-                                        Toast.makeText(getContext(), "已获得存储权限", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
+                    XXPermissions.with(getContext()).permission(Permission.Group.STORAGE).request(new OnPermissionCallback() {
+                        @Override
+                        public void onGranted(List<String> permissions, boolean all) {
+                            if (all) {
+                                Toast.makeText(getContext(), "已获得存储权限", Toast.LENGTH_SHORT).show();
+                            }
+                        }
 
-                                @Override
-                                public void onDenied(List<String> permissions, boolean never) {
-                                    if (never) {
-                                        Toast.makeText(getContext(), "获取存储权限失败,请在系统设置中开启", Toast.LENGTH_SHORT).show();
-                                        XXPermissions.startPermissionActivity((Activity) getContext(), permissions);
-                                    } else {
-                                        Toast.makeText(getContext(), "获取存储权限失败", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
+                        @Override
+                        public void onDenied(List<String> permissions, boolean never) {
+                            if (never) {
+                                Toast.makeText(getContext(), "获取存储权限失败,请在系统设置中开启", Toast.LENGTH_SHORT).show();
+                                XXPermissions.startPermissionActivity((Activity) getContext(), permissions);
+                            } else {
+                                Toast.makeText(getContext(), "获取存储权限失败", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 }
             }
         });

@@ -37,7 +37,6 @@ import com.lzy.okgo.model.Response;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
-import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -79,12 +78,12 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
 
     @Override
     protected void onFragmentResume() {
-        if(Hawk.get(HawkConfig.HOME_REC_STYLE, false)){
+        if (Hawk.get(HawkConfig.HOME_REC_STYLE, true)) {
             tvHotList1.setVisibility(View.VISIBLE);
             tvHotList2.setVisibility(View.GONE);
             tvHotList1.setHasFixedSize(true);
             tvHotList1.setLayoutManager(new V7GridLayoutManager(this.mContext, 5));
-        }else {
+        } else {
             tvHotList1.setVisibility(View.GONE);
             tvHotList2.setVisibility(View.VISIBLE);
         }
@@ -141,23 +140,23 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
                 if (ApiConfig.get().getSourceBeanList().isEmpty())
                     return;
                 Movie.Video vod = ((Movie.Video) adapter.getItem(position));
-                
+
                 // takagen99: CHeck if in Delete Mode
                 if ((vod.id != null && !vod.id.isEmpty()) && (Hawk.get(HawkConfig.HOME_REC, 0) == 2) && HawkConfig.hotVodDelete) {
                     homeHotVodAdapter.remove(position);
                     VodInfo vodInfo = RoomDataManger.getVodInfo(vod.sourceKey, vod.id);
                     RoomDataManger.deleteVodRecord(vod.sourceKey, vodInfo);
                     Toast.makeText(mContext, "已删除当前记录", Toast.LENGTH_SHORT).show();
-               } else if (vod.id != null && !vod.id.isEmpty()) {
+                } else if (vod.id != null && !vod.id.isEmpty()) {
                     Bundle bundle = new Bundle();
                     bundle.putString("id", vod.id);
                     bundle.putString("sourceKey", vod.sourceKey);
                     jumpActivity(DetailActivity.class, bundle);
                 } else {
                     Intent newIntent;
-                    if(Hawk.get(HawkConfig.FAST_SEARCH_MODE, false)){
+                    if (Hawk.get(HawkConfig.FAST_SEARCH_MODE, false)) {
                         newIntent = new Intent(mContext, FastSearchActivity.class);
-                    }else {
+                    } else {
                         newIntent = new Intent(mContext, SearchActivity.class);
                     }
                     newIntent.putExtra("title", vod.name);
@@ -166,7 +165,7 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
                 }
             }
         });
-        
+
         // takagen99 : Long press to trigger Delete Mode for VOD History on Home Page       
         homeHotVodAdapter.setOnItemLongClickListener(new BaseQuickAdapter.OnItemLongClickListener() {
             @Override
@@ -180,10 +179,10 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
                 } else {
                     Bundle bundle = new Bundle();
                     bundle.putString("title", vod.name);
-                    jumpActivity(FastSearchActivity.class, bundle);                    
+                    jumpActivity(FastSearchActivity.class, bundle);
                 }
                 return true;
-            }    
+            }
         });
 
         tvHotList1.setOnItemListener(new TvRecyclerView.OnItemListener() {
@@ -291,8 +290,8 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
                 Movie.Video vod = new Movie.Video();
                 vod.name = obj.get("title").getAsString();
                 vod.note = obj.get("rate").getAsString();
-                if(!vod.note.isEmpty())vod.note+=" 分";
-                vod.pic = obj.get("cover").getAsString()+"@User-Agent="+ UA.randomOne()+"@Referer=https://www.douban.com/";
+                if (!vod.note.isEmpty()) vod.note += " 分";
+                vod.pic = obj.get("cover").getAsString() + "@User-Agent=" + UA.randomOne() + "@Referer=https://www.douban.com/";
                 result.add(vod);
             }
         } catch (Throwable th) {
@@ -313,10 +312,10 @@ public class UserFragment extends BaseLazyFragment implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-    	
-    	// takagen99: Remove Delete Mode
+
+        // takagen99: Remove Delete Mode
         HawkConfig.hotVodDelete = false;
-    
+
         FastClickCheckUtil.check(v);
         if (v.getId() == R.id.tvLive) {
             jumpActivity(LivePlayActivity.class);

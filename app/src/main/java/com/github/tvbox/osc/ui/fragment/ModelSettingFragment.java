@@ -31,7 +31,6 @@ import com.github.tvbox.osc.util.FastClickCheckUtil;
 import com.github.tvbox.osc.util.FileUtils;
 import com.github.tvbox.osc.util.HawkConfig;
 import com.github.tvbox.osc.util.HistoryHelper;
-import com.github.tvbox.osc.util.LOG;
 import com.github.tvbox.osc.util.OkGoHelper;
 import com.github.tvbox.osc.util.PlayerHelper;
 import com.lzy.okgo.OkGo;
@@ -91,7 +90,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvFastSearchText = findViewById(R.id.showFastSearchText);
         tvFastSearchText.setText(Hawk.get(HawkConfig.FAST_SEARCH_MODE, false) ? "已开启" : "已关闭");
         tvRecStyleText = findViewById(R.id.showRecStyleText);
-        tvRecStyleText.setText(Hawk.get(HawkConfig.HOME_REC_STYLE, false) ? "是" : "否");
+        tvRecStyleText.setText(Hawk.get(HawkConfig.HOME_REC_STYLE, true) ? "是" : "否");
         tvShowPreviewText = findViewById(R.id.showPreviewText);
         tvShowPreviewText.setText(Hawk.get(HawkConfig.SHOW_PREVIEW, true) ? "开启" : "关闭");
         tvDebugOpen = findViewById(R.id.tvDebugOpen);
@@ -115,7 +114,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvDns.setText(OkGoHelper.dnsHttpsList.get(Hawk.get(HawkConfig.DOH_URL, 0)));
         tvHomeRec.setText(getHomeRecName(Hawk.get(HawkConfig.HOME_REC, 0)));
         tvHistoryNum.setText(HistoryHelper.getHistoryNumName(Hawk.get(HawkConfig.HISTORY_NUM, 0)));
-        tvSearchView.setText(getSearchView(Hawk.get(HawkConfig.SEARCH_VIEW, 0)));
+        tvSearchView.setText(getSearchView(Hawk.get(HawkConfig.SEARCH_VIEW, 1)));
         tvHomeApi.setText(ApiConfig.get().getHomeSourceBean().getName());
         tvScale.setText(PlayerHelper.getScaleName(Hawk.get(HawkConfig.PLAY_SCALE, 0)));
         tvPlay.setText(PlayerHelper.getPlayerName(Hawk.get(HawkConfig.PLAY_TYPE, 0)));
@@ -192,8 +191,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 File wp = new File(requireActivity().getFilesDir().getAbsolutePath() + "/wp");
-                if (wp.exists())
-                    wp.delete();
+                if (wp.exists()) wp.delete();
                 ((BaseActivity) requireActivity()).changeWallpaper(true);
             }
         });
@@ -202,7 +200,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 List<SourceBean> sites = ApiConfig.get().getSourceBeanList();
-                if (sites.size() > 0) {
+                if (!sites.isEmpty()) {
                     SelectDialog<SourceBean> dialog = new SelectDialog<>(mActivity);
                     dialog.setTip("请选择首页数据源");
                     dialog.setAdapter(new SelectDialogAdapter.SelectDialogInterface<SourceBean>() {
@@ -211,7 +209,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                             ApiConfig.get().setSourceBean(value);
                             tvHomeApi.setText(ApiConfig.get().getHomeSourceBean().getName());
 
-                            Intent intent =new Intent(mContext, HomeActivity.class);
+                            Intent intent = new Intent(mContext, HomeActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             Bundle bundle = new Bundle();
                             bundle.putBoolean("useCache", true);
@@ -299,13 +297,11 @@ public class ModelSettingFragment extends BaseLazyFragment {
         });
 
 
-
         findViewById(R.id.llMediaCodec).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 List<IJKCode> ijkCodes = ApiConfig.get().getIjkCodes();
-                if (ijkCodes == null || ijkCodes.size() == 0)
-                    return;
+                if (ijkCodes == null || ijkCodes.size() == 0) return;
                 FastClickCheckUtil.check(v);
 
                 int defaultPos = 0;
@@ -391,7 +387,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
                 int defaultPos = 0;
                 ArrayList<Integer> players = PlayerHelper.getExistPlayerTypes();
                 ArrayList<Integer> renders = new ArrayList<>();
-                for(int p = 0; p<players.size(); p++) {
+                for (int p = 0; p < players.size(); p++) {
                     renders.add(p);
                     if (players.get(p) == playerType) {
                         defaultPos = p;
@@ -503,7 +499,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
             @Override
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
-                int defaultPos = Hawk.get(HawkConfig.SEARCH_VIEW, 0);
+                int defaultPos = Hawk.get(HawkConfig.SEARCH_VIEW, 1);
                 ArrayList<Integer> types = new ArrayList<>();
                 types.add(0);
                 types.add(1);
@@ -598,7 +594,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
             public void onClick(View v) {
                 FastClickCheckUtil.check(v);
                 Hawk.put(HawkConfig.HOME_REC_STYLE, !Hawk.get(HawkConfig.HOME_REC_STYLE, false));
-                tvRecStyleText.setText(Hawk.get(HawkConfig.HOME_REC_STYLE, false) ? "是" : "否");
+                tvRecStyleText.setText(Hawk.get(HawkConfig.HOME_REC_STYLE, true) ? "是" : "否");
             }
         });
 
